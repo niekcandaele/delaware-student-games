@@ -640,3 +640,21 @@ Recommendation engine?
 
 
 clustering important !
+
+
+-----
+
+Extra model: 
+
+Lengte van zin / aantal woorden
+Leestekens -> vraagteken of uitroepteken
+zin met cijfers
+Namen  -> kijken of hoofdletter
+average word length
+zelfst naamwoorden / werkwoorden
+woordfrequentie
+aanhalingstekens (quotes important)
+
+woorden die in titel zitten
+inleiding & slot is belnagrijk
+zin na een vraag
