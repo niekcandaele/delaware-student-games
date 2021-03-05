@@ -646,15 +646,19 @@ clustering important !
 
 Extra model: 
 
+
+done: 
 Lengte van zin / aantal woorden
-Leestekens -> vraagteken of uitroepteken
 zin met cijfers
-Namen  -> kijken of hoofdletter
 average word length
+aanhalingstekens (quotes important)
+inleiding & slot is belnagrijk
+
+todo:
+Leestekens -> vraagteken of uitroepteken
+Namen  -> kijken of hoofdletter
 zelfst naamwoorden / werkwoorden
 woordfrequentie
-aanhalingstekens (quotes important)
-
 woorden die in titel zitten
-inleiding & slot is belnagrijk
+
 zin na een vraag
