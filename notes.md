@@ -653,14 +653,12 @@ zin met cijfers
 average word length
 aanhalingstekens (quotes important)
 inleiding & slot is belnagrijk
-Spacy POS tagging
+Spacy POS tagging (zelfst naamwoorden / werkwoorden) Namen  -> kijken of hoofdletter
 woordfrequentie
 
 
 todo:
 Leestekens -> vraagteken of uitroepteken
-Namen  -> kijken of hoofdletter
-zelfst naamwoorden / werkwoorden
 woorden die in titel zitten
 zin na een vraag
 

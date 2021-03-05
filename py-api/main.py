@@ -6,6 +6,15 @@ from heapq import nlargest
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+import pickle
+from summa.summarizer import summarize
+import re
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
+from collections import Counter
+
+with open('nb_model.pkl', 'rb') as f:
+    model = pickle.load(f)
 
 app = FastAPI()
 
@@ -37,7 +46,9 @@ class Article(BaseModel):
 
 @app.post("/summary")
 def getSummary(article: Article):
-    return summarize(article.text)
+    summ = createSummary(article.text)
+    print(summ)
+    return {'summary': summ}
 
 
 stopwords = list(STOP_WORDS)
@@ -52,7 +63,85 @@ def readingTime(docs):
     return round(estimatedtime)
 
 
-def summarize(articleText):
+def containsNumbers(sentence):
+    return len(re.findall('\d', sentence))
+
+
+def avgWordLen(sentence):
+    if len(sentence.split()) == 0:
+        return 0
+    return sum(len(word) for word in sentence.split()) / len(sentence.split())
+
+
+def isQuote(sentence):
+    return len(re.findall('\"\w*\"', sentence))
+
+
+def encodeLabels(ents):
+    labels = pd.DataFrame()
+    for ent in ents:
+        labels.append([ent.label_, ent])
+    enc = OneHotEncoder(handle_unknown='ignore')
+    if len(labels) != 0:
+        enc.fit(labels)
+        return pd.DataFrame(enc.transform(labels), colums=enc.get_feature_names())
+    return []
+
+
+def getPos(token):
+    return nlp(token).pos
+
+
+def getWord(token):
+    return token.text
+
+
+def getParameters(sentences, expectedOutcome):
+    params = [dict() for x in range(len(sentences))]
+    for idx, sentence in enumerate(sentences):
+        params[idx]['length'] = len(sentence)
+        params[idx]['containsNumbers'] = containsNumbers(sentence)
+        params[idx]['avgWordLen'] = avgWordLen(sentence)
+        #params[idx]['originalSentence'] = sentence.text
+        #params[idx]['labels'] = encodeLabels(sentence.ents)
+        #params[idx]['isQuote'] = isQuote(sentence)
+        params[idx]['locationInText'] = idx/len(sentences)
+
+        if expectedOutcome is not None:
+            if expectedOutcome == '0':
+                params[idx]['isExpected'] = None
+            else:
+                if sentence.text in expectedOutcome:
+                    params[idx]['isExpected'] = True
+                else:
+                    params[idx]['isExpected'] = False
+
+        #posTags = map(getPos, sentence)
+        #counter = Counter(list(posTags))
+        # for c in counter.most_common():
+        #    params[idx]['pos' + str(c[0])] = c[1]
+
+        #wordFreq = map(getWord,sentence)
+        # print(list(wordFreq))
+        #counter = Counter(list(wordFreq))
+        # for c in counter.most_common():
+        #    params[idx]['word' + str(c[0])] = c[1]
+
+    return pd.DataFrame(data=params)
+
+
+def createSummary(articleText):
+    summ = summarize(articleText, ratio=0.2, split=True)
+    params = getParameters(summ, None)
+    pred = model.predict(params)
+    res = []
+    for i in range(len(pred)):
+        if pred[i] == 1:
+            res.append(summ[i])
+    return res
+
+
+""" def summarize(articleText):
     docx = nlp(articleText)
     mytokens = [token.text for token in docx]
     word_frequencies = {}
@@ -89,4 +178,4 @@ def summarize(articleText):
         "summary": summary,
         "readingTimeOriginal": readingTime(articleText),
         "readingTimeSummary": readingTime(summary)
-    }
+    } """
