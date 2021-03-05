@@ -5,8 +5,25 @@ from string import punctuation
 from heapq import nlargest
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.options("/summary")
+def read_root():
+    return {"Hello": "World"}
 
 
 @app.get("/")
